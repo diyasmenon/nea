@@ -1,0 +1,83 @@
+<html>
+
+<head>
+    <!-- name of website -->
+    <title>ParticleScan</title> 
+    <!-- adds a favicon (particle) -->
+    <link rel="icon" type="image/png" href="../static/images/favicon.png">
+    <!-- links the css file to here -->
+    <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+
+<body>
+
+<!-- top header -->
+
+ <header>
+    <!-- top left section with the brand info -->
+    <div class="brand">
+        <div class="brandTitle">ParticleScan</div>
+        <div class="brandSlogan">Insights into your Air</div>
+    </div>
+
+    <div class="topBand">
+        <!-- horizontal nav bar -->
+        <nav class="navigation">
+            <ul>
+            <li> <a href="index.html">Dashboard</a> </li>
+            <li> <a href="readMore.html">Graphs</a> </li>
+            <li> <a href="takeAction.html">Settings</a> </li>
+            </ul>
+        </nav>
+
+        <!-- sign up/log in area -->
+        <nav class="userAccount">
+            <ul>
+            <li> <a href="{{ url_for('login') }}">Login</a> </li>
+            <li> <a class="headerSignUp" href="{{ url_for('signup') }}">Sign Up</a> </li>
+            </ul>
+        </nav>
+    </div>
+    
+</header>
+
+<!-- intro section -->
+
+<div id="introContainer">
+    <div id="introText">
+        <div class="introTitle">Keep up-to-date with</div>
+        <div class="introTitle">the <span style="color: #6275B8; font-weight: bold">air quality</span> and stay <span style="color: #6275B8; font-weight: bold">healthy.</span></div>
+        <div id="introSubtitle">Simple. Easy. Effective.</div>
+        <a id="introSignUp" href="{{ url_for('login') }}">Start Tracking</a>
+
+    </div>
+
+    <div id="imgContainer">
+        <!-- shows an example graph that is created with this website -->
+        <img id="introImg" src="">
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- about the website -->
+
+<div id="aboutWebsite">
+    <!-- info text about website -->
+    <div id="aboutWebsiteText">Gain <span style="color: #6275B8; font-weight: bold">personalised</span> insights through graphs, reports and <span style="color: #6275B8; font-weight: bold">more!</span></div>
+    <!-- a carousel to highlight the website's features -->
+    <div id="featureCarousel"></div>
+</div>
+
+<!-- footer -->
+
+<footer>
+    <p><strong>ParticleScan</strong> by Diya Menon</p>
+</footer>
+
+
+<!-- advertise features - graphs etc thtough carousel-->
+
+</body>
+
+</html>

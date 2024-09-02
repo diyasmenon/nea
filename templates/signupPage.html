@@ -1,0 +1,66 @@
+<html>
+
+<head>
+    <!-- name of website -->
+    <title>ParticleScan</title> 
+    <!-- adds a favicon (particle) -->
+    <link rel="icon" type="image/png" href="../static/images/favicon.png">
+    <!-- links the css file to here -->
+    <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+
+<body>
+
+<!-- gives a title at the top of the page -->
+
+<div class="accountTitle">ParticleScan</div>
+
+<!-- main login section -->
+
+<div class="accountContainer">
+    <!-- box in the middle with the form -->
+    <div class="accountFormContainer">
+        <div class="accountFormTitle"><span style="color: #6275B8; font-weight: bold">Hello,</span> there!</div>
+        <div class=accountFormSubtitle>Start your journey now</div>
+
+        <!-- the actual form section -->
+
+        <!-- specifies which function to send data for -->
+        <!-- POST method more secure for sending sensitive info -->
+        <form action="{{ url_for('signup') }}" method="POST">
+
+            <div class="accountFormName">First Name</div>
+            <input type="text" placeholder="Bob" name="firstName" required><br>
+
+            <div class="accountFormName">Email</div>
+            <input type="text" placeholder="example@email.com" name="email" class="{{ emailClass }}" required><br>
+            <!-- display error message if error -->
+            {% if emailError %}
+                <p class="errorMessage">{{ emailError }}</p>
+            {% endif %}
+
+            <div class="accountFormName">Password</div>
+            <input type="password" placeholder="********" name="password" required><br>
+
+            <input class="accountSubmitButton" type="submit" value="Register">
+            
+        </form> 
+    </div>
+
+    <!-- ending text -->
+    <div class="accountEndingText1">Already have an account?</div>
+    <div class="accountEndingText2">
+        <a class="accountEndingText2Link" href="{{ url_for('login') }}">Login here!</a>
+    </div>
+    
+</div>
+
+<!-- footer -->
+
+<footer>
+    <p><strong>ParticleScan</strong> by Diya Menon</p>
+</footer>
+
+</body>
+
+</html>

@@ -1,0 +1,67 @@
+<html>
+
+<head>
+    <!-- name of website -->
+    <title>ParticleScan</title> 
+    <!-- adds a favicon (particle) -->
+    <link rel="icon" type="image/png" href="../static/images/favicon.png">
+    <!-- links the css file to here -->
+    <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+
+<body>
+
+<!-- gives a title at the top of the page -->
+
+<div class="accountTitle">ParticleScan</div>
+
+<!-- main login section -->
+
+<div class="accountContainer">
+    <!-- box in the middle with the form -->
+    <div class="accountFormContainer">
+        <div class="accountFormTitle"><span style="color: #6275B8; font-weight: bold">Welcome</span> back!</div>
+        <div class=accountFormSubtitle>Please login to access</div>
+
+        <!-- the actual form section -->
+
+        <!-- specifies which function to send data for -->
+        <!-- POST method more secure for sending sensitive info -->
+        <form action="{{ url_for('login') }}" method="POST">
+
+            <div class="accountFormName">Email</div>
+            <input type="text" placeholder="example@email.com" name="email" class="{{ emailClass }}" required><br>
+            <!-- display error message if email error -->
+            {% if emailError %}
+                <p class="errorMessage">{{ emailError }}</p>
+            {% endif %}   
+
+            <div class="accountFormName">Password</div>
+            <input type="password" placeholder="********" name="password" class="{{ pwdClass }}" required><br>
+            <!-- display error message if pwd error -->
+            {% if pwdError %}
+                <p class="errorMessage">{{ pwdError }}</p>
+            {% endif %}            
+
+            <input class="accountSubmitButton" type="submit" value="Log in">
+
+        </form> 
+    </div>
+
+    <!-- ending text -->
+    <div class="accountEndingText1">Don't have an account?</div>
+    <div class="accountEndingText2">
+        <a class="accountEndingText2Link" href="{{ url_for('signup') }}">Create one here!</a>
+    </div>
+    
+</div>
+
+<!-- footer -->
+
+<footer>
+    <p><strong>ParticleScan</strong> by Diya Menon</p>
+</footer>
+
+</body>
+
+</html>

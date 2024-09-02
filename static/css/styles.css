@@ -1,0 +1,303 @@
+/* using an imported external font for the website */
+@font-face {
+  font-family: 'K2D';
+  /* where to find the font ttf file */
+  src: url('../fonts/K2D-Regular.ttf') format('ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  background-color: #E0E6FA;
+  /* using the imported font */
+  font-family: 'K2D', sans-serif;
+  /* removing any styling */
+  margin: 0%;
+}
+
+header {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%; 
+  z-index: 1000;
+}
+
+footer {
+  background-color: #6275B8;
+  color: white;
+  height: 50px;
+  padding: 10px;
+  text-align: center;
+  font-size: 18px;
+}
+
+input {
+  outline: none; /* Removes the outline */
+  box-shadow: none; /* Removes any shadow */
+  border: 1px solid #ccc; /* Optional: Add a subtle border to keep it visible */
+  padding: 6px;
+  width: 100%;
+}
+
+/* styling the nav bar */
+
+nav {
+  text-align: center;
+}
+
+ul {
+ list-style-type: none;
+ overflow: hidden;  
+}
+
+li {
+ display: inline;
+}
+
+li a {
+ text-decoration: none;
+ color: white;
+ font-size: 20px;
+ margin-left: 30px;  
+ margin-right: 30px;
+ padding: 0px;
+}
+
+li a:hover {
+  color: #2c3553;
+}
+
+/* CLASSES */
+
+/* classes for header */
+
+.brand {
+  background-color: #6275B8;
+  /* occupies 1/5 of the screen */
+  width: 15%;
+  color: white;
+  padding: 10px;
+}
+
+.brandTitle {
+  font-size: 24px;
+  margin-left: 3px;
+  margin-bottom: 3px;
+}
+
+.brandSlogan {
+  font-size: 13px;
+  margin-left: 3px;
+}
+
+.topBand {
+  background-color: #8C9CD7;
+  width: 85%;
+  display: flex;
+  align-items: center;
+}
+
+.userAccount {
+  margin-left: 300px;
+  display: inline-block;
+}
+
+.userAccount ul {
+  /* changing ul styling of userAccount class */
+  list-style-type: none;
+  padding: 0; 
+  margin: 0;
+}
+
+.headerSignUp { 
+  /* makes a button-like background for Sign Up */
+  display: inline-block;
+  background-color: #6275B8;
+  padding: 10px 20px;
+  border-radius: 25px;
+  text-align: center;
+  transition: background-color 0.3s;
+}
+
+.headerSignUp:hover {
+  background-color: #E0E6FA;
+  color: #6275B8;
+}
+
+.divider {
+  background-color: #6275B8;
+  height: 65px;
+}
+/* classes for home page */
+
+.introTitle {
+  font-size: 30px;
+}
+
+/* classes for login/sign up page */
+
+.accountTitle {
+  background-color: #6275B8;
+  color: white;
+  font-size: 33px;
+  text-align: center;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.accountContainer {
+  background-color: #8C9CD7;
+  padding-top: 44px;
+}
+
+.accountFormContainer {
+  background-color: #C1CEFD;
+  padding: 63px;
+  padding-bottom: 9px;
+  margin-left: 30%;
+  margin-right: 30%;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.5);
+}
+
+.accountFormTitle {
+  text-align: center;
+  font-size: 28px;
+}
+
+.accountFormSubtitle {
+  text-align: center;
+  padding-top: 14px;
+  padding-bottom: 10px;
+  font-size: 16px;
+}
+
+.accountFormName {
+  font-size: 13px;
+  padding-bottom: 10px;
+  margin-top: 30px;
+}
+
+.accountSubmitButton {
+  display: inline-block;
+  color: white;
+  background-color: #6275B8;
+  margin-top: 40px;
+  margin-bottom: 30px;
+  padding: 11px 45px;
+  border-radius: 25px;
+  text-align: center;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.accountSubmitButton:hover {
+  background-color: #8C9CD7; 
+}
+
+.accountEndingText1 {
+  text-align: center;
+  font-size: 14px;
+  color: #D2DCFF;
+  padding-top: 35px;
+}
+
+.accountEndingText2 {
+  text-align: center;
+  padding-top: 9px;
+  padding-bottom: 25px;
+}
+
+.accountEndingText2Link {
+  font-size: 14px;
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+.accountEndingText2Link:hover {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.errorMessage {
+  color: red;
+  font-size: 13px;
+}
+
+.error {
+  border: 1.5px solid red;
+}
+
+/* IDs */
+
+/* ids for homepage */
+
+#introContainer {
+  background-color: #C1CEFD;
+  display: flex;
+  padding-top: 77px;
+}
+
+#introText {
+  padding-top: 12%;
+  padding-left: 7%;
+}
+
+#introSubtitle {
+  font-size: 20px;
+  padding-top: 28px;
+  padding-bottom: 66px;
+}
+
+#introSignUp { 
+  /* makes a button-like background for Sign Up */
+  display: inline-block;
+  color: white;
+  background-color: #6275B8;
+  padding: 15px 45px;
+  border-radius: 25px;
+  text-align: center;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 19px;
+  transition: background-color 0.3s;
+}
+
+#introSignUp:hover {
+  background-color: #E0E6FA;
+  color: #6275B8;
+}
+
+#imgContainer {
+  background-color: white;
+  width: 400px;
+  height: 400px;
+  margin-top: 90px;
+  margin-left: 140px;
+  margin-bottom: 90px;
+  border-radius: 100%;
+}
+
+#aboutWebsite {
+  height: 580px;
+}
+
+#aboutWebsiteText {
+  font-size: 25px;
+  text-align: center;
+  padding-top: 65px;
+}
+
+#featureCarousel {
+  padding: 80px;
+  background-color: #B7C3ED;
+  margin-left: 12%;
+  margin-right: 12%;
+  margin-top: 6%;
+  height: 170px;
+}
+
+/* ids for login page */
