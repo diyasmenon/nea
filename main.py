@@ -22,7 +22,13 @@ def getDBConnection():
 
 @app.route('/')
 def home():
-    return render_template('homePage.html')
+    if 'user_id' in session:
+        loggedIn = True
+
+    else:
+        loggedIn = False
+
+    return render_template('homePage.html', loggedIn = loggedIn)
 
 
 
@@ -38,11 +44,11 @@ def login():
 
     if request.method == "POST":
 
-        #get the data in the login form and saves them in a variable
+        # get the data in the login form and saves them in a variable
         email = request.form["email"]
         password = request.form["password"]
 
-        #gets password for that email address from db
+        # gets password for that email address from db
 
         db = getDBConnection()
         # returns the values as a dictionary
@@ -51,7 +57,7 @@ def login():
         cursor.execute('SELECT * FROM userAccountsTBL WHERE email=%s', (email,))
         # only need to get corresponding user info
         user = cursor.fetchone()
-        # closes all the connetions
+        # closes all the connections
         cursor.close()
         db.close()
 
@@ -60,7 +66,7 @@ def login():
             # stores info about user for their session
             session['user_id'] = user['id']
 
-            return redirect(url_for('home'))
+            return redirect(url_for('home')) #redirects the user to the home page when logged in
         
         # if user doesn't exist
         elif not user:
@@ -130,6 +136,29 @@ def signup():
 
     return render_template('signupPage.html', emailError=emailError, emailClass=emailClass)
 
+
+
+@app.route('/logout')
+def logout():
+
+    #removes user_id from session
+    session.pop('user_id', None)
+    return redirect(url_for('home'))  # redirect to the home page
+
+
+
+@app.route('/dashboard')
+def dashboard():
+
+    # checks if the user is logged in and gives appropriate boolean response
+    # determines if a user can access this page yet
+    if 'user_id' in session:
+        loggedIn = True
+
+    else:
+        loggedIn = False
+
+    return render_template('dashboardPage.html', loggedIn = loggedIn)
 
 
 if __name__ == '__main__':

@@ -36,7 +36,7 @@ footer {
 input {
   outline: none; /* Removes the outline */
   box-shadow: none; /* Removes any shadow */
-  border: 1px solid #ccc; /* Optional: Add a subtle border to keep it visible */
+  border: 1px solid #ccc; /* adds a subtle border to keep it visible */
   padding: 6px;
   width: 100%;
 }
@@ -100,7 +100,7 @@ li a:hover {
 }
 
 .userAccount {
-  margin-left: 300px;
+  margin-left: 370px;
   display: inline-block;
 }
 
@@ -124,6 +124,22 @@ li a:hover {
 .headerSignUp:hover {
   background-color: #E0E6FA;
   color: #6275B8;
+}
+
+.headerLogOut {
+  /* makes a button-like background for Log Out */
+  display: inline-block;
+  background-color: #6275B8;
+  padding: 10px 20px;
+  border-radius: 25px;
+  text-align: center;
+  transition: background-color 0.3s;
+  margin-left: 150px; 
+}
+
+.headerLogOut:hover {
+  background-color: #E0E6FA;
+  color: #6275B8;  
 }
 
 .divider {

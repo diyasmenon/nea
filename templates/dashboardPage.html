@@ -1,0 +1,60 @@
+<html>
+
+<head>
+    <!-- name of website -->
+    <title>ParticleScan</title> 
+    <!-- adds a favicon (particle) -->
+    <link rel="icon" type="image/png" href="../static/images/favicon.png">
+    <!-- links the css file to here -->
+    <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+
+<body>
+
+<!-- top header -->
+
+ <header>
+    <!-- top left section with the brand info -->
+    <div class="brand">
+        <div class="brandTitle">ParticleScan</div>
+        <div class="brandSlogan">Insights into your Air</div>
+    </div>
+
+    <div class="topBand">
+        <!-- horizontal nav bar -->
+        <nav class="navigation">
+            <ul>
+            <li> <a href="{{ url_for('dashboard') }}">Dashboard</a> </li>
+            <li> <a href="dataAnalyticsPage.html">Data Analytics</a> </li>
+            </ul>
+        </nav>
+
+        <!-- sign up/log in area -->
+
+        {% if not loggedIn %}
+            <nav class="userAccount">
+                <ul>
+                    <li> <a href="{{ url_for('login') }}">Login</a> </li>
+                    <li> <a class="headerSignUp" href="{{ url_for('signup') }}">Sign Up</a> </li>
+                </ul>
+            </nav>
+        {% elif loggedIn %}
+        <nav class="userAccount">
+            <ul>
+                <li> <a class="headerLogOut" href="{{ url_for('logout') }}">Log Out</a> </li>  
+            </ul>
+        </nav>
+        {% endif %} 
+    </div>
+    
+</header>
+
+<!-- footer -->
+
+<footer>
+    <p><strong>ParticleScan</strong> by Diya Menon</p>
+</footer>
+
+</body>
+
+</html>

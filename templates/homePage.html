@@ -22,21 +22,39 @@
 
     <div class="topBand">
         <!-- horizontal nav bar -->
+        {% if not loggedIn %}
+        <!-- if not logged in, clicking on feature tabs sends user to login page -->
+        <nav class="navigation"> 
+            <ul>
+                <li> <a href="{{ url_for('login') }}">Dashboard</a> </li>
+                <li> <a href="{{ url_for('login') }}">Data Analytics</a> </li>
+            </ul>
+        </nav>
+        {% elif loggedIn %}
         <nav class="navigation">
             <ul>
-            <li> <a href="index.html">Dashboard</a> </li>
-            <li> <a href="readMore.html">Graphs</a> </li>
-            <li> <a href="takeAction.html">Settings</a> </li>
+                <li> <a href="{{ url_for('dashboard') }}">Dashboard</a> </li>
+                <li> <a href="dataAnalyticsPage.html">Data Analytics</a> </li>
             </ul>
         </nav>
+        {% endif %} 
 
         <!-- sign up/log in area -->
+
+        {% if not loggedIn %}
+            <nav class="userAccount">
+                <ul>
+                    <li> <a href="{{ url_for('login') }}">Login</a> </li>
+                    <li> <a class="headerSignUp" href="{{ url_for('signup') }}">Sign Up</a> </li>
+                </ul>
+            </nav>
+        {% elif loggedIn %}
         <nav class="userAccount">
             <ul>
-            <li> <a href="{{ url_for('login') }}">Login</a> </li>
-            <li> <a class="headerSignUp" href="{{ url_for('signup') }}">Sign Up</a> </li>
+                <li> <a class="headerLogOut" href="{{ url_for('logout') }}">Log Out</a> </li>  
             </ul>
         </nav>
+        {% endif %} 
     </div>
     
 </header>
@@ -48,7 +66,13 @@
         <div class="introTitle">Keep up-to-date with</div>
         <div class="introTitle">the <span style="color: #6275B8; font-weight: bold">air quality</span> and stay <span style="color: #6275B8; font-weight: bold">healthy.</span></div>
         <div id="introSubtitle">Simple. Easy. Effective.</div>
+
+        {% if not loggedIn %}
         <a id="introSignUp" href="{{ url_for('login') }}">Start Tracking</a>
+        {% elif loggedIn %}
+        <a id="introSignUp" href="{{ url_for('dashboard') }}">Start Tracking</a>
+        {% endif %}
+
 
     </div>
 
