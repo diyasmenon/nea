@@ -135,6 +135,7 @@ def predict_next_val(latest_vals):
 #in real one, should run until program ends
 
 for i in range(len(pm1_vals)):
+
     #print(latest_pm1, latest_pm25, latest_pm10, last_value)
 
     #gets x latest values
@@ -165,3 +166,4 @@ for i in range(len(pm1_vals)):
     #print(pm1_avg, pm25_avg, pm10_avg, pm1_sd, pm25_sd, pm10_sd)
 
     time.sleep(5)
+

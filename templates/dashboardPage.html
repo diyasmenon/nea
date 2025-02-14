@@ -25,7 +25,7 @@
         <nav class="navigation">
             <ul>
             <li> <a href="{{ url_for('dashboard') }}">Dashboard</a> </li>
-            <li> <a href="dataAnalyticsPage.html">Data Analytics</a> </li>
+            <li> <a href="{{ url_for('analytics') }}">Data Analytics</a> </li>
             </ul>
         </nav>
 
@@ -49,12 +49,49 @@
     
 </header>
 
+<!-- title -->
+<div class="titleText"><span style="color: #6275B8; font-weight: bold">Dashboard</span></div>
+
+<!-- time -->
+<div class="timeButtonsContainer">
+    <div class="timeText" id="timeDashboard">DD/MM/YY HH/MM/SS</div>
+    <button id="refreshButton" class="basicButton">Refresh</button>
+    <button id="copyAPIButton" class="basicButton">Copy API Key</button>
+    <input type="hidden" id="APIText" value="{{apiKey}}">
+</div>
+
+<div class="pageFeatures">
+    <!-- shows current conc levels -->
+
+    <div class="mainSubtitle">Current Particle <span style="color: #6275B8;">Concentration</span> Levels</div>
+    
+    <div id="dashboardConcs">
+        <div id="pm1">PM1: Loading...</div>
+        <div id="pm2_5">PM2.5: Loading...</div>
+        <div id="pm10">PM10: Loading...</div>
+    </div>
+
+    <div id="dashboardExplanation">Note: PMx represents the concentration of particulate matter with a diameter of less than x micrometers</div>
+
+    <!-- shows graphs of current concentrations  -->
+
+    <div class="mainSubtitle"><span style="color: #6275B8;">Current </span>Graphs</div>
+
+    <div id="dashboardGraphs">
+        <div id="dashboardConcGraph">graph 1</div>
+        <div id="dashboardExceededGraph">graph 2</div>
+    </div>
+
+</div>
+
 <!-- footer -->
 
 <footer>
     <p><strong>ParticleScan</strong> by Diya Menon</p>
 </footer>
 
+<!-- link js to html -->
+<script src="../static/js/dashboardUi.js"></script>
 </body>
 
 </html>

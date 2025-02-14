@@ -3,6 +3,9 @@ from flask import Flask, render_template, request, redirect, session, url_for, f
 import mysql.connector
 from config import Config
 from werkzeug.security import generate_password_hash, check_password_hash
+import secrets # for generating an api for the user
+import requests
+from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
 # gets settings from Config class
@@ -18,7 +21,27 @@ def getDBConnection():
     )
     return connection
 
+# gets the data from the rasb pi
+def fetchData():
+    try:
+        rasbPiIP = "http://192.168.68.115:5000/sensorData"
+        sensorData = requests.get(rasbPiIP)
 
+        if sensorData.status_code == 200:
+            data = sensorData.json()  # get the data from the response
+            print(f"PM1: {data['PM1']} µg/m³")
+            print(f"PM2.5: {data['PM2.5']} µg/m³")
+            print(f"PM10: {data['PM10']} µg/m³")
+        else:
+            print("Failed to fetch data.")
+
+    except requests.exceptions.RequestException as error:
+        print(f"Error fetching data: {error}")
+
+# scheduler to run fetchData() every 5 seconds
+#scheduler = BackgroundScheduler()
+#scheduler.add_job(fetchData, 'interval', seconds=5)
+#scheduler.start()
 
 @app.route('/')
 def home():
@@ -54,7 +77,7 @@ def login():
         # returns the values as a dictionary
         cursor = db.cursor(dictionary=True)
         # selects all the data for that email address
-        cursor.execute('SELECT * FROM userAccountsTBL WHERE email=%s', (email,))
+        cursor.execute('SELECT * FROM userAccountsTbl WHERE email=%s', (email,))
         # only need to get corresponding user info
         user = cursor.fetchone()
         # closes all the connections
@@ -104,13 +127,17 @@ def signup():
         # creates a hashed version of the password
         hashedPassword = generate_password_hash(password)
 
+        # create a 64-char unique api key with the library secrets
+        apiKey = secrets.token_hex(32)
+
+
         #store the data in useraccountsdb
 
         db = getDBConnection()
         cursor = db.cursor()
 
         # checks if email already registered
-        cursor.execute('SELECT * FROM userAccountsTBL WHERE email = %s', (email,))
+        cursor.execute('SELECT * FROM userAccountsTbl WHERE email = %s', (email,))
         # only need to get one user
         user = cursor.fetchone()
 
@@ -124,7 +151,7 @@ def signup():
             db.close()
         else:
             # inserts data into db
-            cursor.execute('INSERT INTO userAccountsTBL (email, password, firstName) VALUES (%s, %s, %s)', (email, hashedPassword, firstName))
+            cursor.execute('INSERT INTO userAccountsTbl (email, password, firstName, apiKey) VALUES (%s, %s, %s, %s)', (email, hashedPassword, firstName, apiKey))
             # commits the values in db
             db.commit()
             # closes all the connetions
@@ -158,8 +185,47 @@ def dashboard():
     else:
         loggedIn = False
 
-    return render_template('dashboardPage.html', loggedIn = loggedIn)
+    # gets the users ip key to display
 
+    userId = session.get('user_id')
+    
+    #connects to db
+    db = getDBConnection()
+    # returns the values as a dictionary
+    cursor = db.cursor(dictionary=True)
+    # selects all the data for that email address
+    cursor.execute('SELECT apiKey FROM userAccountsTbl WHERE id=%s', (userId,))
+    # only need to get corresponding user info
+    user = cursor.fetchone()
+
+    # if the user doesnt exist
+
+    if not user:
+        return redirect(url_for('home'))
+
+    # gets corresponding api key
+    apiKey = user['apiKey']
+
+    # closes all the connections
+    cursor.close()
+    db.close()
+
+    return render_template('dashboardPage.html', loggedIn = loggedIn, apiKey = apiKey)
+
+
+
+@app.route('/analytics')
+def analytics():
+
+    # checks if the user is logged in and gives appropriate boolean response
+    # determines if a user can access this page yet
+    if 'user_id' in session:
+        loggedIn = True
+
+    else:
+        loggedIn = False
+
+    return render_template('dataAnalyticsPage.html', loggedIn = loggedIn)
 
 if __name__ == '__main__':
     app.run(debug=True)

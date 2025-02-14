@@ -1,1 +1,1 @@
-SELECT * FROM userAccountsTbl
+SHOW TABLES

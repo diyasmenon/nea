@@ -247,6 +247,93 @@ li a:hover {
   border: 1.5px solid red;
 }
 
+/* classes for dashboard/data analytics page */
+
+.titleText {
+  font-size: 40px;
+  color: #6275B8;
+  padding-top: 120px;
+  padding-left: 50px;
+}
+
+.timeButtonsContainer {
+  padding-top: 13px;
+  padding-bottom: 50px;
+  /* align to the side */
+  display: flex;
+  align-items: center;
+  gap: 50px;
+}
+
+.timeText {
+  font-size: 15px;
+  padding-left: 52px;
+}
+
+.basicButton {
+  /* makes a button-like background for refresh */
+  display: inline-block;
+  color: white;
+  background-color: #8C9CD7;
+  font-size: 14.5px;
+  border-width: 0px;
+  padding: 4px 16px;
+  border-radius: 25px;
+  text-align: center;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.basicButton:hover {
+  background-color: #6275B8;
+}
+
+.mainSubtitle {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.pageFeatures {
+  padding-left: 50px;
+}
+
+.analyticsFeature {
+  /* align to the side */
+  display: flex;
+  align-items: center;
+  gap: 80px;
+  /* padding */
+  padding-top: 50px;
+  padding-bottom: 50px;  
+}
+
+.analyticsInfoTitleBox {
+  background-color: #5a6db1;
+  padding: 13px;
+  text-align: center;
+  width: 280px;
+}
+
+.analyticsInfoTitle {
+  color: white;
+  font-size: 16px;
+}
+
+.analyticsInfoContentBox {
+  background-color: #C1CEFD;
+  padding: 20px;
+  padding-bottom: 15px;
+}
+
+.analyticsInfoContent {
+  padding-left: 10px;
+  padding-bottom: 3px;
+  font-size: 14.5;
+  color: black;
+  margin-bottom: 5px;
+  font-weight:400;
+}
+
 /* IDs */
 
 /* ids for homepage */
@@ -316,4 +403,144 @@ li a:hover {
   height: 170px;
 }
 
-/* ids for login page */
+/* ids for dashboard */
+
+#dashboardConcs {
+  /* align to the side */
+  display: flex;
+  align-items: center;
+  gap: 250px;
+  font-size: 17px;
+  /* padding */
+  padding-top: 30px;
+}
+
+#dashboardExplanation {
+  padding-top: 30px;
+  padding-bottom: 60px;
+  font-size: 15px;
+  font-style: italic;
+}
+
+#dashboardGraphs {
+    /* align to the side */
+  display: flex;
+  align-items: center;
+  gap: 80px;
+  /* padding */
+  padding-top: 30px;
+  padding-bottom: 50px;
+}
+
+/* ids for analytics */
+
+#analyticsConc {
+  position: relative;
+  display: inline-block;
+}
+
+#concButton {
+  display: inline-block;
+  color: white;
+  background-color: #8C9CD7;
+  font-size: 14.5px;
+  border-width: 0px;
+  padding: 4px 16px;
+  border-radius: 25px;
+  text-align: center;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+#concButton:hover {
+  background-color: #6275B8;
+}
+
+/* conc dropdown content (hidden by default) */
+#concButtonContent {
+  display: none;
+  position: absolute;
+  background-color: white;
+  width: 172px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* show conc dropdown when active */
+#analyticsConc.active #concButtonContent {
+  display: block;
+}
+
+#concButtonContent label {
+  display: flex;
+  align-items: center;  /* align text and checkbox vertically */
+  gap: 8px;  /* space between checkbox and text */
+  padding: 5px;
+  font-size: 14px;
+}
+
+#concButtonContent input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  accent-color: #8C9CD7;
+  color: white;
+}
+
+/* time frame */
+
+#analyticsTimeFrame {
+  position: relative;
+  display: inline-block;
+}
+
+#timeFrameButton {
+  display: inline-block;
+  color: white;
+  background-color: #8C9CD7;
+  font-size: 14.5px;
+  border-width: 0px;
+  padding: 4px 16px;
+  border-radius: 25px;
+  text-align: center;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+#timeFrameButton:hover {
+  background-color: #6275B8;
+}
+
+/* dropdown content (hidden by default) */
+#timeFrameButtonContent {
+  display: none;
+  position: absolute;
+  background-color: white;
+  width: 109px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* show dropdown when active */
+#analyticsTimeFrame.active #timeFrameButtonContent {
+  display: block;
+}
+
+#timeFrameButtonContent label {
+  display: flex;
+  align-items: center;  /* align text and checkbox vertically */
+  gap: 8px;  /* space between checkbox and text */
+  padding: 5px;
+  font-size: 14px;
+}
+
+#timeFrameButtonContent input[type="radio"] {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  accent-color: #8C9CD7;
+  color: white;
+  outline: none;
+}

@@ -1,0 +1,135 @@
+<html>
+
+<head>
+    <!-- name of website -->
+    <title>ParticleScan</title> 
+    <!-- adds a favicon (particle) -->
+    <link rel="icon" type="image/png" href="../static/images/favicon.png">
+    <!-- links the css file to here -->
+    <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+
+<body>
+
+<!-- top header -->
+
+ <header>
+    <!-- top left section with the brand info -->
+    <div class="brand">
+        <div class="brandTitle">ParticleScan</div>
+        <div class="brandSlogan">Insights into your Air</div>
+    </div>
+
+    <div class="topBand">
+        <!-- horizontal nav bar -->
+        <nav class="navigation">
+            <ul>
+            <li> <a href="{{ url_for('dashboard') }}">Dashboard</a> </li>
+            <li> <a href="{{ url_for('analytics') }}">Data Analytics</a> </li>
+            </ul>
+        </nav>
+
+        <!-- sign up/log in area -->
+
+        {% if not loggedIn %}
+            <nav class="userAccount">
+                <ul>
+                    <li> <a href="{{ url_for('login') }}">Login</a> </li>
+                    <li> <a class="headerSignUp" href="{{ url_for('signup') }}">Sign Up</a> </li>
+                </ul>
+            </nav>
+        {% elif loggedIn %}
+        <nav class="userAccount">
+            <ul>
+                <li> <a class="headerLogOut" href="{{ url_for('logout') }}">Log Out</a> </li>  
+            </ul>
+        </nav>
+        {% endif %} 
+    </div>
+    
+</header>
+
+<!-- title -->
+<div class="titleText"><span style="color: #6275B8; font-weight: bold">Data Analytics</span></div>
+
+<!-- time and buttons -->
+<div class="timeButtonsContainer">
+    <div class="timeText" id="timeAnalytics">DD/MM/YY HH/MM/SS</div>
+
+    <button id="refreshButton" class="basicButton">Refresh</button>
+
+    <div id="analyticsConc">
+        <button id="concButton">Particle Concentration ▼</button>
+        <div id="concButtonContent">
+            <label><input type="checkbox" value="pm1.0">PM1.0</label>
+            <label><input type="checkbox" value="pm2.5">PM2.5</label>
+            <label><input type="checkbox" value="pm10.0">PM10.0</label>
+        </div>
+    </div>
+
+    <div id="analyticsTimeFrame">
+        <button id="timeFrameButton">Time Frame ▼</button>
+        <div id="timeFrameButtonContent">
+            <label><input type="radio" name="time" value="10min" checked>Last 10 Minutes</label>
+            <label><input type="radio" name="time" value="1h">Last 1 Hour</label>
+            <label><input type="radio" name="time" value="24h"> Last 24 Hours</label>
+        </div>
+    </div>
+
+</div>
+
+<div class="pageFeatures">
+    <!-- shows historical graphs -->
+
+    <div class="mainSubtitle"><span style="color: #6275B8;">Historical</span> Graph</div>
+
+    <div class="analyticsFeature">
+        <div id="analyticsHistoricalGraph">graph</div>
+
+        <div id="analyticsHistoricalInfo">
+            <div class="analyticsInfoTitleBox">
+                <div class="analyticsInfoTitle">Historical Trends for PM X</div>
+            </div>
+            <div class="analyticsInfoContentBox">
+                <div class="analyticsInfoContent">Overall Trend: Loading...</div>
+                <div class="analyticsInfoContent">Highest Recorded Peak: Loading...</div>
+                <div class="analyticsInfoContent">Standard Deviation: Loading...</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- shows the predictive graph  -->
+
+    <div class="mainSubtitle"><span style="color: #6275B8;">Predicted </span>Graph</div>
+
+    <div class="analyticsFeature">
+        <div id="analyticsPredictedGraph">graph</div>
+
+        <div id="analyticsPredictedInfo">
+            <div class="analyticsInfoTitleBox">
+                <div class="analyticsInfoTitle">Prediction Summary for PM X</div>
+            </div>
+            <div class="analyticsInfoContentBox">
+                <div class="analyticsInfoContent">Expected Range: Loading...</div>
+                <div class="analyticsInfoContent">Goodness of Fit: Loading...</div>
+                <div class="analyticsInfoContent">Last Major Anomaly: Loading...</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- footer -->
+
+<footer>
+    <p><strong>ParticleScan</strong> by Diya Menon</p>
+</footer>
+
+
+<!-- links js to the page -->
+<script src="../static/js/analyticsUi.js"></script>
+
+</body>
+
+</html>
