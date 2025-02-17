@@ -1,47 +1,20 @@
-#all imports
-from flask import Flask, render_template, request, redirect, session, url_for, flash
-import mysql.connector
-from config import Config
+# all imports
+from flask import Flask, render_template, request, redirect, session, url_for
+import features # imports custom modules from external file
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets # for generating an api for the user
-import requests
-from apscheduler.schedulers.background import BackgroundScheduler
+
+# custom modules
+from config import Config
+import dbUtility
+import dataHandler
+
 
 app = Flask(__name__)
 # gets settings from Config class
 app.config.from_object(Config)
 
-# gets the db connection with useraccountsdb
-def getDBConnection():
-    connection = mysql.connector.connect(
-        host=app.config['MYSQL_HOST'],
-        user=app.config['MYSQL_USER'],
-        password=app.config['MYSQL_PASSWORD'],
-        database=app.config['MYSQL_DB']
-    )
-    return connection
 
-# gets the data from the rasb pi
-def fetchData():
-    try:
-        rasbPiIP = "http://192.168.68.115:5000/sensorData"
-        sensorData = requests.get(rasbPiIP)
-
-        if sensorData.status_code == 200:
-            data = sensorData.json()  # get the data from the response
-            print(f"PM1: {data['PM1']} µg/m³")
-            print(f"PM2.5: {data['PM2.5']} µg/m³")
-            print(f"PM10: {data['PM10']} µg/m³")
-        else:
-            print("Failed to fetch data.")
-
-    except requests.exceptions.RequestException as error:
-        print(f"Error fetching data: {error}")
-
-# scheduler to run fetchData() every 5 seconds
-#scheduler = BackgroundScheduler()
-#scheduler.add_job(fetchData, 'interval', seconds=5)
-#scheduler.start()
 
 @app.route('/')
 def home():
@@ -73,7 +46,7 @@ def login():
 
         # gets password for that email address from db
 
-        db = getDBConnection()
+        db = dbUtility.getDBConnection()
         # returns the values as a dictionary
         cursor = db.cursor(dictionary=True)
         # selects all the data for that email address
@@ -133,7 +106,7 @@ def signup():
 
         #store the data in useraccountsdb
 
-        db = getDBConnection()
+        db = dbUtility.getDBConnection()
         cursor = db.cursor()
 
         # checks if email already registered
@@ -190,7 +163,7 @@ def dashboard():
     userId = session.get('user_id')
     
     #connects to db
-    db = getDBConnection()
+    db = dbUtility.getDBConnection()
     # returns the values as a dictionary
     cursor = db.cursor(dictionary=True)
     # selects all the data for that email address
