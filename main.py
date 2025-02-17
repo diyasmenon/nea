@@ -1,6 +1,5 @@
 # all imports
-from flask import Flask, render_template, request, redirect, session, url_for
-import features # imports custom modules from external file
+from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets # for generating an api for the user
 
@@ -8,6 +7,7 @@ import secrets # for generating an api for the user
 from config import Config
 import dbUtility
 import dataHandler
+import features
 
 
 app = Flask(__name__)
@@ -15,10 +15,12 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 
+# ALL WEBPAGE ROUTES
+
 
 @app.route('/')
 def home():
-    if 'user_id' in session:
+    if 'apiKey' in session:
         loggedIn = True
 
     else:
@@ -60,7 +62,7 @@ def login():
         # checking if user exists and hashed pwds match
         if user and check_password_hash(user['password'], password):
             # stores info about user for their session
-            session['user_id'] = user['id']
+            session['apiKey'] = user['apiKey']
 
             return redirect(url_for('home')) #redirects the user to the home page when logged in
         
@@ -142,7 +144,7 @@ def signup():
 def logout():
 
     #removes user_id from session
-    session.pop('user_id', None)
+    session.pop('apiKey', None)
     return redirect(url_for('home'))  # redirect to the home page
 
 
@@ -152,38 +154,13 @@ def dashboard():
 
     # checks if the user is logged in and gives appropriate boolean response
     # determines if a user can access this page yet
-    if 'user_id' in session:
+    if 'apiKey' in session:
         loggedIn = True
 
     else:
         loggedIn = False
 
-    # gets the users ip key to display
-
-    userId = session.get('user_id')
-    
-    #connects to db
-    db = dbUtility.getDBConnection()
-    # returns the values as a dictionary
-    cursor = db.cursor(dictionary=True)
-    # selects all the data for that email address
-    cursor.execute('SELECT apiKey FROM userAccountsTbl WHERE id=%s', (userId,))
-    # only need to get corresponding user info
-    user = cursor.fetchone()
-
-    # if the user doesnt exist
-
-    if not user:
-        return redirect(url_for('home'))
-
-    # gets corresponding api key
-    apiKey = user['apiKey']
-
-    # closes all the connections
-    cursor.close()
-    db.close()
-
-    return render_template('dashboardPage.html', loggedIn = loggedIn, apiKey = apiKey)
+    return render_template('dashboardPage.html', loggedIn = loggedIn, apiKey = session['apiKey'])
 
 
 
@@ -199,6 +176,17 @@ def analytics():
         loggedIn = False
 
     return render_template('dataAnalyticsPage.html', loggedIn = loggedIn)
+
+
+# ALL FEATURES ROUTES
+
+
+@app.route('/currentTimeFeature')
+def currentTimeFeature():
+    # gets the latest time stored in db belonging to the specific 
+    time = features.getCurrentTime(session['apiKey'])
+    # returns this as a dictionary
+    return jsonify({'time':time})
 
 if __name__ == '__main__':
     app.run(debug=True)
