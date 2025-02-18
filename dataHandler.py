@@ -7,7 +7,7 @@ import dbUtility
 # gets the data from the rasb pi
 def fetchData():
     try:
-        rasbPiIP = "http://192.168.68.107:5000/sensorData"
+        rasbPiIP = "http://192.168.68.125:5000/sensorData"
         sensorData = requests.get(rasbPiIP)
 
         if sensorData.status_code == 200: # if data has been collected
@@ -50,7 +50,7 @@ def deleteOldData():
 # schedulers to run tasks periodically
 scheduler = BackgroundScheduler()
 # runs fetchData() every 5 seconds
-scheduler.add_job(fetchData, 'interval', seconds=5)
+scheduler.add_job(fetchData, 'interval', seconds=1)
 # runs deleteOldData() every 2 minutes
 scheduler.add_job(deleteOldData, 'interval', minutes=2)
 scheduler.start()

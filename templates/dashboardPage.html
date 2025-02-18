@@ -66,9 +66,9 @@
     <div class="mainSubtitle">Current Particle <span style="color: #6275B8;">Concentration</span> Levels</div>
     
     <div id="dashboardConcs">
-        <div id="pm1">PM1: Loading...</div>
-        <div id="pm2_5">PM2.5: Loading...</div>
-        <div id="pm10">PM10: Loading...</div>
+        <div id="pm1.0">PM1.0: Loading...</div>
+        <div id="pm2.5">PM2.5: Loading...</div>
+        <div id="pm10.0">PM10.0: Loading...</div>
     </div>
 
     <div id="dashboardExplanation">Note: PMx represents the concentration of particulate matter with a diameter of less than x micrometers</div>
@@ -78,8 +78,8 @@
     <div class="mainSubtitle"><span style="color: #6275B8;">Current </span>Graphs</div>
 
     <div id="dashboardGraphs">
-        <div id="dashboardConcGraph">graph 1</div>
-        <div id="dashboardExceededGraph">graph 2</div>
+        <canvas id="dashboardConcGraph" width="1100" height="550">graph 1</canvas>
+        <!-- <canvas id="dashboardExceededGraph" width="400" height="200">graph 2</canvas> -->
     </div>
 
 </div>
@@ -93,6 +93,9 @@
 <!-- link js to html -->
 <script src="../static/js/dashboardUi.js"></script>
 <script src="../static/js/dashboardFeatures.js"></script>
+<!-- adding chart.js and linking it -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </body>
 
 </html>

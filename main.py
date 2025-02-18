@@ -2,6 +2,7 @@
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets # for generating an api for the user
+import json # for formatting the data correctly
 
 # custom modules
 from config import Config
@@ -178,15 +179,28 @@ def analytics():
     return render_template('dataAnalyticsPage.html', loggedIn = loggedIn)
 
 
-# ALL FEATURES ROUTES
+# ALL DASHBOARD FEATURES ROUTES
 
 
 @app.route('/currentTimeFeature')
 def currentTimeFeature():
-    # gets the latest time stored in db belonging to the specific 
+    # gets the latest time stored in db belonging to the specific user
     time = features.getCurrentTime(session['apiKey'])
     # returns this as a dictionary
     return jsonify({'time':time})
+
+@app.route('/currentConcsFeature')
+def currentConcsFeature():
+    # gets the latest particle concs stored in db belonging to the specific user
+    data = features.getCurrentConcs(session['apiKey'])
+    # returns the data
+    return jsonify(data)
+
+@app.route('/currentConcGraphFeature')
+def currentConcGraphFeature():
+    # gets data for all particle sizes from the last 10 minutes
+    data = features.getConcGraphData('10 MINUTE', True, True, True)
+    return jsonify(data)
 
 if __name__ == '__main__':
     app.run(debug=True)
