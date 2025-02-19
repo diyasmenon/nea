@@ -72,9 +72,8 @@ def getCurrentConcs(apiKey):
 
     return data
 
-
 # gets the relevent data for the selected time frame and sizes
-def getConcGraphData(timeframe, pm1_0, pm2_5, pm10_0):
+def getConcData(timeframe, pm1_0, pm2_5, pm10_0):
 
     sizes = []
 
@@ -92,14 +91,27 @@ def getConcGraphData(timeframe, pm1_0, pm2_5, pm10_0):
     db = dbUtility.getDBConnection()
     cursor = db.cursor()
 
-    # get relevant data dependent on parameters
-    query =f'''
-        SELECT time, concentration, particleCategory
-        FROM particleDataTbl 
-        WHERE time >= NOW() - INTERVAL {timeframe}
-        AND particleCategory IN {tuple(sizes)}
-        ORDER BY time ASC
-        '''
+    # if only one size selected, dont need to pass it in as a tuple 
+    # ensures code doesnt break and works as intended
+    if len(sizes) == 1:
+        # get relevant data dependent on parameters
+        query =f'''
+            SELECT time, concentration, particleCategory
+            FROM particleDataTbl 
+            WHERE time >= NOW() - INTERVAL {timeframe}
+            AND particleCategory = '{sizes[0]}'
+            ORDER BY time ASC
+            '''
+
+    else:
+        # get relevant data dependent on parameters
+        query =f'''
+            SELECT time, concentration, particleCategory
+            FROM particleDataTbl 
+            WHERE time >= NOW() - INTERVAL {timeframe}
+            AND particleCategory IN {tuple(sizes)}
+            ORDER BY time ASC
+            '''
 
     try:
         # execute the query with parameters
@@ -142,3 +154,4 @@ def getConcGraphData(timeframe, pm1_0, pm2_5, pm10_0):
             formattedData["PM10.0"][index] = row[1]
 
     return formattedData
+

@@ -179,28 +179,51 @@ def analytics():
     return render_template('dataAnalyticsPage.html', loggedIn = loggedIn)
 
 
-# ALL DASHBOARD FEATURES ROUTES
+# ALL DASHBOARD/ANALYTICS FEATURES ROUTES
 
 
-@app.route('/currentTimeFeature')
+@app.route('/currentTimeFeature') # for both pages
 def currentTimeFeature():
     # gets the latest time stored in db belonging to the specific user
     time = features.getCurrentTime(session['apiKey'])
     # returns this as a dictionary
     return jsonify({'time':time})
 
-@app.route('/currentConcsFeature')
+@app.route('/currentConcsFeature') # only for dashboard
 def currentConcsFeature():
     # gets the latest particle concs stored in db belonging to the specific user
     data = features.getCurrentConcs(session['apiKey'])
     # returns the data
     return jsonify(data)
 
-@app.route('/currentConcGraphFeature')
+@app.route('/currentConcGraphFeature') # for both pages
 def currentConcGraphFeature():
     # gets data for all particle sizes from the last 10 minutes
-    data = features.getConcGraphData('10 MINUTE', True, True, True)
+    data = features.getConcData('10 MINUTE', True, True, True)
     return jsonify(data)
+
+@app.route('/historicalConcGraphFeature', methods=['POST']) # only for analytics
+def historicalConcGraphFeature():
+    # gets data for relevant particle sizes for the given timeframe
+    # all depends on what the user chooses on the website
+
+    # get data from request
+    data = request.json
+    timeframe = data.get("timeframe")
+    pm1_0 = data.get("pm1_0")
+    pm2_5 = data.get("pm2_5")
+    pm10_0 = data.get("pm10_0")
+
+    # get graph data
+    graphData = features.getConcData(timeframe, pm1_0, pm2_5, pm10_0)
+
+    # get historical trends using this data, to display
+    #trendData = features.getHistoricalTrendData(graphData)
+
+    # return the data back to js to display graphs
+    return jsonify(graphData)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -61,18 +61,19 @@
     <div id="analyticsConc">
         <button id="concButton">Particle Concentration ▼</button>
         <div id="concButtonContent">
-            <label><input type="checkbox" value="pm1.0">PM1.0</label>
-            <label><input type="checkbox" value="pm2.5">PM2.5</label>
-            <label><input type="checkbox" value="pm10.0">PM10.0</label>
+            <label><input type="checkbox" name="particle" value="pm1.0" onchange="sendData()">PM1.0</label>
+            <label><input type="checkbox" name="particle" value="pm2.5" onchange="sendData()">PM2.5</label>
+            <label><input type="checkbox" name="particle" value="pm10.0" onchange="sendData()">PM10.0</label>
         </div>
     </div>
 
     <div id="analyticsTimeFrame">
         <button id="timeFrameButton">Time Frame ▼</button>
         <div id="timeFrameButtonContent">
-            <label><input type="radio" name="time" value="10min" checked>Last 10 Minutes</label>
-            <label><input type="radio" name="time" value="1h">Last 1 Hour</label>
-            <label><input type="radio" name="time" value="24h"> Last 24 Hours</label>
+            <label><input type="radio" name="time" value="1 MINUTE" onchange="sendData()" checked>Last 1 Minute</label>
+            <label><input type="radio" name="time" value="10 MINUTE" onchange="sendData()">Last 10 Minutes</label>
+            <label><input type="radio" name="time" value="30 MINUTE" onchange="sendData()">Last 30 Minutes</label>
+            <label><input type="radio" name="time" value="1 HOUR" onchange="sendData()">Last 1 Hour</label>
         </div>
     </div>
 
@@ -84,7 +85,7 @@
     <div class="mainSubtitle"><span style="color: #6275B8;">Historical</span> Graph</div>
 
     <div class="analyticsFeature">
-        <div id="analyticsHistoricalGraph">graph</div>
+        <canvas id="analyticsHistoricalGraph" width="700" height="350"></canvas>
 
         <div id="analyticsHistoricalInfo">
             <div class="analyticsInfoTitleBox">
@@ -129,6 +130,9 @@
 
 <!-- links js to the page -->
 <script src="../static/js/analyticsUi.js"></script>
+<script src="../static/js/analyticsFeatures.js"></script>
+<!-- adding chart.js and linking it -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </body>
 
