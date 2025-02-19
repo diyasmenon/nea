@@ -202,7 +202,7 @@ def currentConcGraphFeature():
     data = features.getConcData('10 MINUTE', True, True, True)
     return jsonify(data)
 
-@app.route('/historicalConcGraphFeature', methods=['POST']) # only for analytics
+@app.route('/historicalConcFeature', methods=['POST']) # only for analytics
 def historicalConcGraphFeature():
     # gets data for relevant particle sizes for the given timeframe
     # all depends on what the user chooses on the website
@@ -215,13 +215,19 @@ def historicalConcGraphFeature():
     pm10_0 = data.get("pm10_0")
 
     # get graph data
-    graphData = features.getConcData(timeframe, pm1_0, pm2_5, pm10_0)
+    data = features.getConcData(timeframe, pm1_0, pm2_5, pm10_0)
 
     # get historical trends using this data, to display
-    #trendData = features.getHistoricalTrendData(graphData)
+    size, overallTrend, peakInfo, avgConc = features.getHistoricalTrendsData(data)
+
+    # add these values to the big data dictionary
+    data['size'] = size
+    data['overallTrend'] = overallTrend
+    data['peakInfo'] = peakInfo
+    data['avgConc'] = avgConc
 
     # return the data back to js to display graphs
-    return jsonify(graphData)
+    return jsonify(data)
 
 
 

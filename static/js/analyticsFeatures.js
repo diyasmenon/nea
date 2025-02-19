@@ -26,7 +26,7 @@ function sendData() {
     });
 
     // send data to Python in right format
-    fetch('/historicalConcGraphFeature', {
+    fetch('/historicalConcFeature', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -37,12 +37,12 @@ function sendData() {
         })
     })
     .then(response => response.json())
-    .then(graphData => {
-        let times = graphData['time'];  // extract time values
+    .then(data => {
+            let times = data['time'];  // extract time values
             // extract concentration values
-            let pm1_0 = graphData['PM1.0'];
-            let pm2_5 = graphData['PM2.5'];
-            let pm10_0 = graphData['PM10.0'];
+            let pm1_0 = data['PM1.0'];
+            let pm2_5 = data['PM2.5'];
+            let pm10_0 = data['PM10.0'];
 
             // if the chart doesn't exist yet, create it
             if (!analyticsHistoricalGraph) {
@@ -84,6 +84,12 @@ function sendData() {
                 analyticsHistoricalGraph.data.datasets[2].data = pm10_0;
                 analyticsHistoricalGraph.update();  // update the chart with the new data
             }
+
+            // update the historical trends
+            document.getElementById('historicalTrendTitle').innerText = `Historical Trends for ${data['size']}`;
+            document.getElementById('historicalTrend').innerText = `Overall Trend: ${data['overallTrend']}`;
+            document.getElementById('historicalPeak').innerText = `Highest Peak: ${data['peakInfo']}`;
+            document.getElementById('historicalAvgConc').innerText = `Average Concentration: ${data['avgConc']}`;
         })
         .catch(error => console.error('Error fetching data:', error));
 }
