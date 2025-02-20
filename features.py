@@ -73,8 +73,8 @@ def getCurrentConcs(apiKey):
 
     return data
 
-# gets the relevent data for the selected time frame and sizes
 def getConcData(timeframe, pm1_0, pm2_5, pm10_0):
+    # gets the relevent data for the selected time frame and sizes
 
     sizes = []
 
@@ -171,13 +171,13 @@ def getHistoricalTrendsData(data):
     else:
         # runs if no size is selected
         # default value of 'N/A' is displayed
-        size = 'N/A'
-        overallTrend = 'N/A'
-        peakInfo = 'N/A' 
-        avgConc = 'N/A'
+        data['size'] = 'N/A'
+        data['overallTrend'] = 'N/A'
+        data['peakInfo'] = 'N/A'
+        data['avgConc'] = 'N/A'
 
         # returns all these values to display
-        return size, overallTrend, peakInfo, avgConc
+        return data
 
     # gets the relevent data for the size as an array from the dictionary
     conc = data[size]
@@ -248,5 +248,110 @@ def getHistoricalTrendsData(data):
     # formats it nicely
     avgConc = f'{avgConc} µg/m³'
 
+    # add these values to the big data dictionary
+    data['size'] = size
+    data['overallTrend'] = overallTrend
+    data['peakInfo'] = peakInfo
+    data['avgConc'] = avgConc
+
     # return all relevent data to display
-    return size, overallTrend, peakInfo, avgConc
+    return data
+
+def getPredictedTrendsData(data):
+
+    # predicting the next 20 values for all data sizes chosen
+
+    # initialising the variables
+    predictedPM1_0 = []
+    predictedPM2_5 = []
+    predictedPM10_0 = []
+
+    # need atleast 4 previous values to calculate future ones
+    # condition checks if each value isnt equal to None and adds 
+    #   one to a list and sums it
+    if sum(1 for conc in data['PM1.0'] if conc is not None) > 3:
+        # if theres enough data, call the function to predict the data depending on the
+        #   datset given
+        predictedPM1_0 = predictNextValues(data['PM1.0'])
+    if sum(1 for conc in data['PM2.5'] if conc is not None) > 3:
+        predictedPM2_5 = predictNextValues(data['PM2.5'])
+    if sum(1 for conc in data['PM10.0'] if conc is not None) > 3:
+        predictedPM10_0 = predictNextValues(data['PM10.0'])
+
+    time = data['time']
+
+    # saves this data as a dictionary
+    predictedData = {}
+
+    # adds placeholders for the graph depending on amount of predicted data
+    # placeholders are after the actual values in the list
+    predictedData['Analytics PM1.0'] = data['PM1.0'] + ([None] * len(predictedPM1_0))
+    predictedData['Analytics PM2.5'] = data['PM2.5'] + ([None] * len(predictedPM2_5))
+    predictedData['Analytics PM10.0'] = data['PM10.0'] + ([None] * len(predictedPM10_0))
+    predictedData['Analytics Times'] = time
+
+    # giving placeholder values for time to show it isnt recorded data
+    predictedData['Predicted Times'] = ['.'] * len(predictedPM1_0)
+    # adding placeholders before the actual predictions
+    predictedData['Predicted PM1.0'] = ([None] * len(data['PM1.0'])) + predictedPM1_0
+    predictedData['Predicted PM2.5'] = ([None] * len(data['PM2.5'])) + predictedPM2_5
+    predictedData['Predicted PM10.0'] = ([None] * len(data['PM10.0'])) + predictedPM10_0
+
+    # return all the data (actual time and concs + predicted times and concs)
+    # fomrat is all good to directly plot on a graph and give the illusion of continuity
+    return predictedData
+
+
+def predictNextValues(data):
+    # code to predict the next 20 values using current data given
+
+    # works out the last three gradients
+    # this helps to reduce the impact of noise
+    gradient1 = (data[-1] - data[-2]) / 2
+    gradient2 = (data[-2] - data[-3]) / 2
+    gradient3 = (data[-3] - data[-4]) / 2
+
+    # works out the average gradient
+    avgGradient = (gradient1 + gradient2 + gradient3) / 3
+
+    # stores the last point in a var for readability
+    lastPoint = data[-1]
+
+    # initialises a var to store the predicted values
+    predictedValues = []
+
+    # repeats the prediction process 20 times
+    for i in range(20):
+        # uses moving averages to help predict
+        # adds a damping factor so it slows down
+        nextValue = lastPoint + (avgGradient * (i*0.9))
+        # rounds the value to 1 dp and adds it to the list
+        predictedValues.append(round(nextValue, 1))
+
+    # setting an index to get the latest reading from the past minute
+    if len(data) > 59:
+        index = 59
+    else:
+        index = len(data)
+
+    # setting a cap for the values from a subset of data from last min
+    maxValue = max(data[-index:])
+    minValue = min(data[-index:])
+    # reduce by 10% of range
+    rangeReduction = (maxValue - minValue) * 0.1 
+    adjustedMax = maxValue - rangeReduction
+    adjustedMin = minValue + rangeReduction
+
+    # if a predicted point is out of allowed range, then change them
+    for i in range(len(predictedValues)):
+        # gets the corresponding conc for this index
+        conc = predictedValues[i]
+        # checks if conc isnt in the suggested bounds and adjusts accordingly
+        if conc > adjustedMax:
+            predictedValues[i] = adjustedMax
+
+        if conc < adjustedMin:
+            predictedValues[i] = adjustedMin
+    
+    # returns the values as a list which can later be stored in a dictionary
+    return predictedValues

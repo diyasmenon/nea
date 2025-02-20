@@ -196,14 +196,14 @@ def currentConcsFeature():
     # returns the data
     return jsonify(data)
 
-@app.route('/currentConcGraphFeature') # for both pages
+@app.route('/currentConcGraphFeature') # only for dashboard
 def currentConcGraphFeature():
     # gets data for all particle sizes from the last 10 minutes
     data = features.getConcData('10 MINUTE', True, True, True)
     return jsonify(data)
 
-@app.route('/historicalConcFeature', methods=['POST']) # only for analytics
-def historicalConcGraphFeature():
+@app.route('/analyticsFeatures', methods=['POST']) # only for analytics
+def analyticsFeatures():
     # gets data for relevant particle sizes for the given timeframe
     # all depends on what the user chooses on the website
 
@@ -218,17 +218,18 @@ def historicalConcGraphFeature():
     data = features.getConcData(timeframe, pm1_0, pm2_5, pm10_0)
 
     # get historical trends using this data, to display
-    size, overallTrend, peakInfo, avgConc = features.getHistoricalTrendsData(data)
+    historicalData = features.getHistoricalTrendsData(data)
 
-    # add these values to the big data dictionary
-    data['size'] = size
-    data['overallTrend'] = overallTrend
-    data['peakInfo'] = peakInfo
-    data['avgConc'] = avgConc
+    # get the latest data from the last 10 mins for prediction
+    data = features.getConcData('10 MINUTE', pm1_0, pm2_5, pm10_0)
 
-    # return the data back to js to display graphs
-    return jsonify(data)
+    # get predictive trends using this data, to display
+    predictedData = features.getPredictedTrendsData(data)
 
+    # joins the dictionaries together
+    allData = {**historicalData, **predictedData}
+
+    return jsonify(allData)
 
 
 if __name__ == '__main__':

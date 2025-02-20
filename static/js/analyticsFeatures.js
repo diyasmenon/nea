@@ -1,5 +1,6 @@
 // globalises the graph to help
 let analyticsHistoricalGraph
+let analyticsPredictedGraph
 
 // get the current time from the flask backend
 function currentTimeFeature() {
@@ -26,7 +27,7 @@ function sendData() {
     });
 
     // send data to Python in right format
-    fetch('/historicalConcFeature', {
+    fetch('/analyticsFeatures', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -44,7 +45,7 @@ function sendData() {
             let pm2_5 = data['PM2.5'];
             let pm10_0 = data['PM10.0'];
 
-            // if the chart doesn't exist yet, create it
+            // if the historical chart doesn't exist yet, create it
             if (!analyticsHistoricalGraph) {
                 analyticsHistoricalGraph = new Chart('analyticsHistoricalGraph', {
                     type: 'line',  // line chart type
@@ -85,6 +86,92 @@ function sendData() {
                 analyticsHistoricalGraph.update();  // update the chart with the new data
             }
 
+            // if the predicted chart doesn't exist yet, create it
+            if (!analyticsPredictedGraph) {
+                analyticsPredictedGraph = new Chart('analyticsPredictedGraph', {
+                    type: 'line',  // line chart type
+                    data: {
+                        labels: data['Analytics Times'].concat(data['Predicted Times']),  // time values as labels on the x-axis
+                        datasets: [
+                            {
+                                label: 'PM1.0',
+                                data: data['Analytics PM1.0'], //plots previous actual data
+                                borderColor: '#57B0FF',
+                                pointRadius: 0, //removes the circle of the plotted point
+                                tension: 0.1, // smooths out the curve
+                                fill: false
+                            },
+                            {
+                                label: 'Predcicted PM1.0',
+                                data: data['Predicted PM1.0'], //plots predicted data
+                                borderColor: '#4A9AE6', // different colour for prediction
+                                borderDash: [5,5], // dash for prediction
+                                pointRadius: 0, //removes the circle of the plotted point
+                                tension: 0.1, // smooths out the curve
+                                fill: false
+                            },
+                            {
+                                label: 'PM2.5',
+                                data: data['Analytics PM2.5'], //plots previous actual data
+                                borderColor: '#90E093',
+                                pointRadius: 0, //removes the circle of the plotted point
+                                tension: 0.1, // smooths out the curve
+                                fill: false
+                            },
+                            {
+                                label: 'Predcicted PM2.5',
+                                data: data['Predicted PM2.5'], //plots predicted data
+                                borderColor: '#7FC47F', // different colour for prediction
+                                borderDash: [5,5], // dash for prediction
+                                pointRadius: 0, //removes the circle of the plotted point
+                                tension: 0.1, // smooths out the curve
+                                fill: false
+                            },
+                            {
+                                label: 'PM10.0',
+                                data: data['Analytics PM10.0'], //plots previous actual data
+                                borderColor: '#FF9287',
+                                pointRadius: 0, //removes the circle of the plotted point
+                                tension: 0.1, // smooths out the curve
+                                fill: false
+                            },
+                            {
+                                label: 'Predcicted PM10.0',
+                                data: data['Predicted PM10.0'], //plots predicted data
+                                borderColor: '#E67B75', // different colour for prediction
+                                borderDash: [5,5], // dash for prediction
+                                pointRadius: 0, //removes the circle of the plotted point
+                                tension: 0.1, // smooths out the curve
+                                fill: false
+                            }
+                            ]
+                    },
+                    options: {
+                        responsive: false, // disable responsive resizing
+                        maintainAspectRatio: false, // prevent the aspect ratio from being maintained
+                    }
+                });
+            } else {
+                // update the historical chart data and refresh the chart
+                analyticsHistoricalGraph.data.labels = times;
+                analyticsHistoricalGraph.data.datasets[0].data = pm1_0;
+                analyticsHistoricalGraph.data.datasets[1].data = pm2_5;
+                analyticsHistoricalGraph.data.datasets[2].data = pm10_0;
+                analyticsHistoricalGraph.update();  // update the chart with the new data
+
+                // update the predicted graph (all 6 datasets)
+                // times are joined so its format aligns with the format of the dataset
+                analyticsPredictedGraph.data.labels = data['Analytics Times'].concat(data['Predicted Times']);
+                analyticsPredictedGraph.data.datasets[0].data = data['Analytics PM1.0'];
+                analyticsPredictedGraph.data.datasets[1].data = data['Predicted PM1.0'];
+                analyticsPredictedGraph.data.datasets[2].data = data['Analytics PM2.5'];
+                analyticsPredictedGraph.data.datasets[3].data = data['Predicted PM2.5'];
+                analyticsPredictedGraph.data.datasets[4].data = data['Analytics PM10.0'];
+                analyticsPredictedGraph.data.datasets[5].data = data['Predicted PM10.0'];
+                analyticsPredictedGraph.update();  // update the chart with the new data
+
+                
+            }
             // update the historical trends
             document.getElementById('historicalTrendTitle').innerText = `Historical Trends for ${data['size']}`;
             document.getElementById('historicalTrend').innerText = `Overall Trend: ${data['overallTrend']}`;
