@@ -1,6 +1,17 @@
 // globalises the graph to help
 let dashboardConcGraph
 
+document.addEventListener("DOMContentLoaded", function () {
+    const refreshButton = document.getElementById("dashboardRefreshButton");
+    
+    // listening for when refresh is clicked
+    refreshButton.addEventListener("click", function () {
+        // calls the function to get new data
+        currentTimeFeature();
+        currentConcsFeature();
+    });
+});
+
 
 // get the current time from the flask backend
 function currentTimeFeature() {

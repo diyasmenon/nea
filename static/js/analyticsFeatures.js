@@ -2,6 +2,18 @@
 let analyticsHistoricalGraph
 let analyticsPredictedGraph
 
+document.addEventListener("DOMContentLoaded", function () {
+    const refreshButton = document.getElementById("analyticsRefreshButton");
+    
+    // listening for when refresh is clicked
+    refreshButton.addEventListener("click", function () {
+        // calls the functions to get new data
+        currentTimeFeature();
+        sendData();
+    });
+});
+
+
 // get the current time from the flask backend
 function currentTimeFeature() {
     fetch('/currentTimeFeature')  // call the flask endpoint
@@ -181,6 +193,8 @@ function sendData() {
             // update the prediction trends
             document.getElementById('predictionTrendTitle').innerText = `Prediction Summary for ${data['size']}`;
             document.getElementById('predictionConfidence').innerText = `Confidence: ${data['Confidence']}`;
+            document.getElementById('predictionUncertainty').innerText = `Uncertainty: ${data['Uncertainty']}`;
+            document.getElementById('predictionDeviation').innerText = `Recent Deviation: ${data['Prediction Deviation']}`;
         })
         .catch(error => console.error('Error fetching data:', error));
 }

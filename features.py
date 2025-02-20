@@ -329,8 +329,6 @@ def getPredictedTrendsData(data):
 
     # SUMMARY DATA
 
-    # confidence level
-
     # finds the smallest value selected
     # one has to be selected else it wouldve been caught at the beginning of function
     if not all(conc is None for conc in data['PM1.0']):
@@ -363,11 +361,16 @@ def getPredictedTrendsData(data):
     # avoid 0 division
     if len(cleanedConfidenceData) > 0:
         totalError = 0 # a var to count the total error between actual and predicted
+        errorList = [] # makes a list of the error values
         for reading in cleanedConfidenceData:
             # gives the absolute difference between the values
             error = abs(reading[0] - reading[1])
             # adds this error to the total
             totalError += error
+            # adds this error to the error list for later
+            errorList.append(error)
+
+        # confidence level
 
         # works out the avg error across all data points
         avgError = totalError / len(cleanedConfidenceData)
@@ -377,11 +380,48 @@ def getPredictedTrendsData(data):
 
         # caclulates confidence with a formula to 1 dp
         confidence = round(((1 - (avgError/avgActual)) * 100), 1)
+
+        # uncertainty
+
+        # work out the variance of the errors
+        variance = sum((e - avgError) ** 2 for e in errorList) / len(cleanedConfidenceData)
+        standardDeviation = variance ** 0.5  # work out standard deviation
+        # uncertainty is set as ± one standard deviation (rounded)
+        uncertainty = round(standardDeviation, 2)
+
+        # recent prediction deviation
+    
+        N = 5  # number of recent readings to consider (may need to adjust)
+        
+        if len(cleanedConfidenceData) >= N:
+            # subset of confidenceData
+            recentData = cleanedConfidenceData[-N:]  # take the last N readings
+
+            # work out absolute deviations
+            recentDeviations = [abs(reading[0] - reading[1]) for reading in recentData]
+
+            # find average deviation
+            avgRecentDeviation = sum(recentDeviations) / len(recentDeviations)
+
+            # work out mean actual value for recent data
+            avgActualRecent = sum(reading[1] for reading in recentData) / len(recentData)
+
+            # work out percentage deviation
+            percentRecentDeviation = (avgRecentDeviation / avgActualRecent) * 100
+
+            # round results so its in the right format
+            avgRecentDeviation = round(avgRecentDeviation, 2)
+            percentRecentDeviation = round(percentRecentDeviation, 1)
+            predictionDeviation = f'± {avgRecentDeviation}µg/m³ ({percentRecentDeviation}%)'
     else:
         # if theres not any data points, confidence is N/A
         confidence = 'N/A'
+        uncertainty ='N/A'
+        predictionDeviation = 'N/A'
 
     predictedData['Confidence'] = f'{confidence}%'
+    predictedData['Uncertainty'] = f'±{uncertainty} µg/m³'
+    predictedData['Prediction Deviation'] = predictionDeviation
 
     # return all the data (actual time and concs + predicted times and concs)
     # fomrat is all good to directly plot on a graph and give the illusion of continuity
