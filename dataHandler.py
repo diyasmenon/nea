@@ -22,7 +22,11 @@ def fetchData():
             cursor.execute('INSERT INTO particleDataTbl (apiKey, time, concentration, particleCategory) VALUES (%s, %s, %s, %s)', (data['apiKey'], data['time'], data['PM1.0'], 'PM1.0'))
             cursor.execute('INSERT INTO particleDataTbl (apiKey, time, concentration, particleCategory) VALUES (%s, %s, %s, %s)', (data['apiKey'], data['time'], data['PM2.5'], 'PM2.5'))
             cursor.execute('INSERT INTO particleDataTbl (apiKey, time, concentration, particleCategory) VALUES (%s, %s, %s, %s)', (data['apiKey'], data['time'], data['PM10.0'], 'PM10.0'))
-            
+
+            # inserts the actual value into the prediction table, to be able to compare them
+            cursor.execute('UPDATE predictionTbl SET actualValue = %s WHERE timestamp = %s AND particleCategory = %s', (data['PM1.0'], data['time'], 'PM1.0'))
+            cursor.execute('UPDATE predictionTbl SET actualValue = %s WHERE timestamp = %s AND particleCategory = %s', (data['PM2.5'], data['time'], 'PM2.5'))
+            cursor.execute('UPDATE predictionTbl SET actualValue = %s WHERE timestamp = %s AND particleCategory = %s', (data['PM10.0'], data['time'], 'PM10.0'))
             # commits the values in db
             db.commit()
             # closes all the connetions
@@ -34,22 +38,23 @@ def fetchData():
     except requests.exceptions.RequestException as error:
         print(f"Error fetching data: {error}")
 
-
-
 # deletes particle data, when it has been over an hour (wont be needed and saves space)
 def deleteOldData():
     db = dbUtility.getDBConnection()
     cursor = db.cursor()
     cursor.execute('DELETE FROM particleDataTbl WHERE time < NOW() - INTERVAL 1 HOUR;')
+    # deletes the prediction data older than a minute
+    cursor.execute('DELETE FROM predictionTbl WHERE timestamp < NOW() - INTERVAL 1 MINUTE;')
     # commits the values in db
     db.commit()
     # closes all the connetions
     cursor.close()
     db.close()
 
+
 # schedulers to run tasks periodically
 scheduler = BackgroundScheduler()
-# runs fetchData() every 5 seconds
+# runs fetchData() every 1 second
 scheduler.add_job(fetchData, 'interval', seconds=1)
 # runs deleteOldData() every 2 minutes
 scheduler.add_job(deleteOldData, 'interval', minutes=2)

@@ -1,6 +1,6 @@
 # all imports
 import dbUtility # to use the db
-from datetime import datetime # to get current time
+from datetime import datetime, timedelta # to get current time
 
 def getCurrentTime(apiKey):
     db = dbUtility.getDBConnection()
@@ -269,14 +269,29 @@ def getPredictedTrendsData(data):
     # need atleast 4 previous values to calculate future ones
     # condition checks if each value isnt equal to None and adds 
     #   one to a list and sums it
-    if sum(1 for conc in data['PM1.0'] if conc is not None) > 3:
-        # if theres enough data, call the function to predict the data depending on the
-        #   datset given
-        predictedPM1_0 = predictNextValues(data['PM1.0'])
-    if sum(1 for conc in data['PM2.5'] if conc is not None) > 3:
-        predictedPM2_5 = predictNextValues(data['PM2.5'])
-    if sum(1 for conc in data['PM10.0'] if conc is not None) > 3:
-        predictedPM10_0 = predictNextValues(data['PM10.0'])
+    if data: #checks if there is data [ie any size selected]
+        if sum(1 for conc in data['PM1.0'] if conc is not None) > 3:
+            # if theres enough data, call the function to predict the data depending on the
+            #   datset given
+            predictedPM1_0 = predictNextValues(data['PM1.0'])
+        if sum(1 for conc in data['PM2.5'] if conc is not None) > 3:
+            predictedPM2_5 = predictNextValues(data['PM2.5'])
+        if sum(1 for conc in data['PM10.0'] if conc is not None) > 3:
+            predictedPM10_0 = predictNextValues(data['PM10.0'])
+
+    else:
+        # gives placeholder values
+        predictedData = {}
+        predictedData['Analytics PM1.0'] = []
+        predictedData['Analytics PM2.5'] = []
+        predictedData['Analytics PM10.0'] = []
+        predictedData['Analytics Times'] = []
+        predictedData['Predicted Times'] = []
+        predictedData['Predicted PM1.0'] = []
+        predictedData['Predicted PM2.5'] = []
+        predictedData['Predicted PM10.0'] = []
+
+        return predictedData
 
     time = data['time']
 
@@ -290,17 +305,87 @@ def getPredictedTrendsData(data):
     predictedData['Analytics PM10.0'] = data['PM10.0'] + ([None] * len(predictedPM10_0))
     predictedData['Analytics Times'] = time
 
+    #  n is the number of predictions, we need to find it as some lengths of predictions would
+    #   be 0 as that size wasnt selected. this finds the largest n value
+
+    n = len(predictedPM1_0)
+    if len(predictedPM2_5) > n:
+        n = len(predictedPM2_5)
+    if len(predictedPM10_0) > n:
+        n = len(predictedPM10_0)
+
     # giving placeholder values for time to show it isnt recorded data
-    predictedData['Predicted Times'] = ['.'] * len(predictedPM1_0)
+    predictedData['Predicted Times'] = ['.'] * n
     # adding placeholders before the actual predictions
     predictedData['Predicted PM1.0'] = ([None] * len(data['PM1.0'])) + predictedPM1_0
     predictedData['Predicted PM2.5'] = ([None] * len(data['PM2.5'])) + predictedPM2_5
     predictedData['Predicted PM10.0'] = ([None] * len(data['PM10.0'])) + predictedPM10_0
 
+    # store the prediction in a db to help calculate its accurary
+    #   passes through the relevant size of particle
+    storePrediction(predictedPM1_0, 'PM1.0')
+    storePrediction(predictedPM2_5, 'PM2.5')
+    storePrediction(predictedPM10_0, 'PM10.0')
+
+    # SUMMARY DATA
+
+    # confidence level
+
+    # finds the smallest value selected
+    # one has to be selected else it wouldve been caught at the beginning of function
+    if not all(conc is None for conc in data['PM1.0']):
+        size = 'PM1.0'
+    elif not all(conc is None for conc in data['PM2.5']):
+        size = 'PM2.5'
+    elif not all(conc is None for conc in data['PM10.0']):
+        size = 'PM10.0'
+
+    # get the relevant data for the past 1 min
+    db = dbUtility.getDBConnection()
+    cursor = db.cursor()
+    cursor.execute('SELECT predictedValue, actualValue FROM predictionTbl WHERE timestamp >= NOW() - INTERVAL 1 MINUTE')
+    # stores the data
+    confidenceData = cursor.fetchall()
+    # closes all the connetions
+    cursor.close()
+    db.close()
+
+    # clean the data
+    cleanedConfidenceData = []
+
+    # repeats for each pair of values (predicted and actual data)
+    for reading in confidenceData:
+        # if the actual data does exist for the predicted (ie reading was taken at the predicted time)
+        if reading[1] != None:
+            # add the pair of data into a list to manipulate
+            cleanedConfidenceData.append(reading)
+
+    # avoid 0 division
+    if len(cleanedConfidenceData) > 0:
+        totalError = 0 # a var to count the total error between actual and predicted
+        for reading in cleanedConfidenceData:
+            # gives the absolute difference between the values
+            error = abs(reading[0] - reading[1])
+            # adds this error to the total
+            totalError += error
+
+        # works out the avg error across all data points
+        avgError = totalError / len(cleanedConfidenceData)
+
+        # find the mean between all actual values
+        avgActual = sum(reading[1] for reading in cleanedConfidenceData) / len(cleanedConfidenceData)
+
+        # caclulates confidence with a formula to 1 dp
+        confidence = round(((1 - (avgError/avgActual)) * 100), 1)
+    else:
+        # if theres not any data points, confidence is N/A
+        confidence = 'N/A'
+
+    predictedData['Confidence'] = f'{confidence}%'
+
     # return all the data (actual time and concs + predicted times and concs)
     # fomrat is all good to directly plot on a graph and give the illusion of continuity
     return predictedData
-
 
 def predictNextValues(data):
     # code to predict the next 20 values using current data given
@@ -355,3 +440,25 @@ def predictNextValues(data):
     
     # returns the values as a list which can later be stored in a dictionary
     return predictedValues
+
+def storePrediction(data, size):
+
+    # if there's no data, then there's nothing to store
+    if not data:
+        return
+    
+    # next prediction to store - only the next value
+    nextPrediction = data[0]
+    now = datetime.now()  # get current time
+    nextSecond = now + timedelta(seconds=1)  # add 1 second
+
+    # stores these values in a db
+    db = dbUtility.getDBConnection()
+    cursor = db.cursor()
+    # store the prediction and the time it's thought to be at
+    cursor.execute('INSERT INTO predictionTbl (timestamp, predictedValue, particleCategory) VALUES (%s, %s, %s)', (nextSecond, nextPrediction, size))
+    db.commit()  # Make sure to commit the transaction
+
+    # closes all the connetions
+    cursor.close()
+    db.close()

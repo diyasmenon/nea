@@ -177,6 +177,10 @@ function sendData() {
             document.getElementById('historicalTrend').innerText = `Overall Trend: ${data['overallTrend']}`;
             document.getElementById('historicalPeak').innerText = `Highest Peak: ${data['peakInfo']}`;
             document.getElementById('historicalAvgConc').innerText = `Average Concentration: ${data['avgConc']}`;
+            
+            // update the prediction trends
+            document.getElementById('predictionTrendTitle').innerText = `Prediction Summary for ${data['size']}`;
+            document.getElementById('predictionConfidence').innerText = `Confidence: ${data['Confidence']}`;
         })
         .catch(error => console.error('Error fetching data:', error));
 }
