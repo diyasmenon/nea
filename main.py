@@ -65,7 +65,8 @@ def login():
             # stores info about user for their session
             session['apiKey'] = user['apiKey']
 
-            return redirect(url_for('home')) #redirects the user to the home page when logged in
+            #redirects the user to the dashboard when logged in
+            return redirect(url_for('dashboard'))
         
         # if user doesn't exist
         elif not user:
@@ -127,15 +128,19 @@ def signup():
             db.close()
         else:
             # inserts data into db
-            cursor.execute('INSERT INTO userAccountsTbl (email, password, firstName, apiKey) VALUES (%s, %s, %s, %s)', (email, hashedPassword, firstName, apiKey))
+            query = 'INSERT INTO userAccountsTbl (apiKey, email, password, firstName) VALUES (%s, %s, %s, %s)'
+            cursor.execute(query, (apiKey, email, hashedPassword, firstName))
             # commits the values in db
             db.commit()
             # closes all the connetions
             cursor.close()
             db.close()
         
-            # takes them to the home page
-            return redirect(url_for('home'))
+            # starts their session
+            session['apiKey'] = apiKey
+
+            # takes them to the dashboard when created
+            return redirect(url_for('dashboard'))
 
     return render_template('signupPage.html', emailError=emailError, emailClass=emailClass)
 
@@ -146,7 +151,7 @@ def logout():
 
     #removes user_id from session
     session.pop('apiKey', None)
-    return redirect(url_for('home'))  # redirect to the home page
+    return redirect(url_for('login'))  # redirect to login
 
 
 
@@ -196,10 +201,11 @@ def currentConcsFeature():
     # returns the data
     return jsonify(data)
 
-@app.route('/currentConcGraphFeature') # only for dashboard
-def currentConcGraphFeature():
+@app.route('/concGraphFeature') # only for dashboard
+def concGraphFeature():
     # gets data for all particle sizes from the last 10 minutes
-    data = features.getConcData('10 MINUTE', True, True, True)
+    # apiKey used to retrieve
+    data = features.getConcData('10 MINUTE', True, True, True, session['apiKey'])
     return jsonify(data)
 
 @app.route('/analyticsFeatures', methods=['POST']) # only for analytics
@@ -215,16 +221,16 @@ def analyticsFeatures():
     pm10_0 = data.get("pm10_0")
 
     # get graph data
-    data = features.getConcData(timeframe, pm1_0, pm2_5, pm10_0)
+    data = features.getConcData(timeframe, pm1_0, pm2_5, pm10_0, session['apiKey'])
 
     # get historical trends using this data, to display
     historicalData = features.getHistoricalTrendsData(data)
 
     # get the latest data from the last 10 mins for prediction
-    data = features.getConcData('10 MINUTE', pm1_0, pm2_5, pm10_0)
+    data = features.getConcData('10 MINUTE', pm1_0, pm2_5, pm10_0, session['apiKey'])
 
     # get predictive trends using this data, to display
-    predictedData = features.getPredictedTrendsData(data)
+    predictedData = features.getPredictedTrendsData(data, session['apiKey'])
 
     # joins the dictionaries together
     allData = {**historicalData, **predictedData}

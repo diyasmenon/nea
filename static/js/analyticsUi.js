@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
-    // starts with all the concs being selected
+    //starts with all the concs being selected
 
     document.querySelectorAll("#concButtonContent input[type='checkbox']").forEach(checkbox => {
         checkbox.checked = true;

@@ -43,7 +43,7 @@ function currentConcsFeature() {
 
 // get the required data and displays it in a current conc graph
 function currentConcGraphFeature() {
-    fetch('/currentConcGraphFeature')
+    fetch('/concGraphFeature')
         .then(response => response.json())
         .then(data => {
             let times = data['time'];  // extract time values

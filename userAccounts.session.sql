@@ -1,1 +1,1 @@
-SELECT * FROM predictionTbl;
+SELECT * FROM useraccountstbl

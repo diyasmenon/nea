@@ -114,7 +114,7 @@ function sendData() {
                                 fill: false
                             },
                             {
-                                label: 'Predcicted PM1.0',
+                                label: 'Predicted PM1.0',
                                 data: data['Predicted PM1.0'], //plots predicted data
                                 borderColor: '#4A9AE6', // different colour for prediction
                                 borderDash: [5,5], // dash for prediction
@@ -131,7 +131,7 @@ function sendData() {
                                 fill: false
                             },
                             {
-                                label: 'Predcicted PM2.5',
+                                label: 'Predicted PM2.5',
                                 data: data['Predicted PM2.5'], //plots predicted data
                                 borderColor: '#7FC47F', // different colour for prediction
                                 borderDash: [5,5], // dash for prediction
@@ -148,7 +148,7 @@ function sendData() {
                                 fill: false
                             },
                             {
-                                label: 'Predcicted PM10.0',
+                                label: 'Predicted PM10.0',
                                 data: data['Predicted PM10.0'], //plots predicted data
                                 borderColor: '#E67B75', // different colour for prediction
                                 borderDash: [5,5], // dash for prediction
@@ -198,6 +198,7 @@ function sendData() {
         })
         .catch(error => console.error('Error fetching data:', error));
 }
+
 
 // fetch the current time/historical graph data when the page loads
 currentTimeFeature();

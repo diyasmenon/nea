@@ -5,9 +5,15 @@ from datetime import datetime, timedelta # to get current time
 def getCurrentTime(apiKey):
     db = dbUtility.getDBConnection()
     cursor = db.cursor()
-    cursor.execute('SELECT MAX(time) FROM particleDataTbl WHERE apiKey = %s', (apiKey,))
+    cursor.execute('SELECT MAX(timestamp) FROM particleDataTbl WHERE apiKey = %s', (apiKey,))
     # stores the time
     time = cursor.fetchone()[0]
+
+    # runs if time is None
+
+    if not time:
+        time = 'Hardware Failed'
+
     # closes all the connetions
     cursor.close()
     db.close()
@@ -19,53 +25,45 @@ def getCurrentConcs(apiKey):
     cursor = db.cursor()
 
     # gets the latest reading for each category
-    # pm 1.0
-    cursor.execute(
-        '''
+
+    query = '''
         SELECT concentration
         FROM particleDataTbl 
         WHERE apiKey = %s 
-        AND particleCategory = 'PM1.0'
-        ORDER BY time DESC
+        AND particleCategory = %s
+        ORDER BY timestamp DESC
         LIMIT 1
-        ''', (apiKey,))
+        '''
     
+    # pm 1.0
+    cursor.execute(query, (apiKey, 'PM1.0'))
     # stores the data of pm1.0
-    pm1_0 = cursor.fetchall()[0] # gives conc for pm1.0
+    pm1_0 = cursor.fetchall()# gives conc for pm1.0
 
     # pm 2.5
-    cursor.execute(
-        '''
-        SELECT concentration
-        FROM particleDataTbl 
-        WHERE apiKey = %s 
-        AND particleCategory = 'PM2.5'
-        ORDER BY time DESC
-        LIMIT 1
-        ''', (apiKey,))
-    
+    cursor.execute(query, (apiKey, 'PM2.5'))
     # stores the data of pm2.5
-    pm2_5 = cursor.fetchall()[0] # gives conc for pm2.5
+    pm2_5 = cursor.fetchall() # gives conc for pm2.5
 
     # pm 10.0
-    cursor.execute(
-        '''
-        SELECT concentration
-        FROM particleDataTbl 
-        WHERE apiKey = %s 
-        AND particleCategory = 'PM10.0'
-        ORDER BY time DESC
-        LIMIT 1
-        ''', (apiKey,))
-    
+    cursor.execute(query, (apiKey, 'PM10.0'))
     # stores the data of pm10.0
-    pm10_0 = cursor.fetchall()[0] # gives conc for pm10.0
+    pm10_0 = cursor.fetchall() # gives conc for pm10.0
 
-    data = {
-        'PM1.0': pm1_0[0],
-        'PM2.5': pm2_5[0],
-        'PM10.0': pm10_0[0]
-    }
+    try:
+        data = {
+            'PM1.0': pm1_0[0][0],
+            'PM2.5': pm2_5[0][0],
+            'PM10.0': pm10_0[0][0]
+        }
+    except:
+        # runs if concentrations do not exist for the user at all
+        # gives appropriate error message
+        data = {
+            'PM1.0': 'Hardware Failed',
+            'PM2.5': 'Hardware Failed',
+            'PM10.0': 'Hardware Failed'
+        }
 
     # closes all the connetions
     cursor.close()
@@ -73,7 +71,7 @@ def getCurrentConcs(apiKey):
 
     return data
 
-def getConcData(timeframe, pm1_0, pm2_5, pm10_0):
+def getConcData(timeframe, pm1_0, pm2_5, pm10_0, apiKey):
     # gets the relevent data for the selected time frame and sizes
 
     sizes = []
@@ -97,27 +95,30 @@ def getConcData(timeframe, pm1_0, pm2_5, pm10_0):
     if len(sizes) == 1:
         # get relevant data dependent on parameters
         query =f'''
-            SELECT time, concentration, particleCategory
+            SELECT timestamp, concentration, particleCategory
             FROM particleDataTbl 
-            WHERE time >= NOW() - INTERVAL {timeframe}
+            WHERE timestamp >= NOW() - INTERVAL {timeframe}
             AND particleCategory = '{sizes[0]}'
-            ORDER BY time ASC
+            AND apiKey = '{apiKey}'
+            ORDER BY timestamp ASC
             '''
 
     else:
         # get relevant data dependent on parameters
         query =f'''
-            SELECT time, concentration, particleCategory
+            SELECT timestamp, concentration, particleCategory
             FROM particleDataTbl 
-            WHERE time >= NOW() - INTERVAL {timeframe}
+            WHERE timestamp >= NOW() - INTERVAL {timeframe}
             AND particleCategory IN {tuple(sizes)}
-            ORDER BY time ASC   
+            AND apiKey = '{apiKey}'
+            ORDER BY timestamp ASC   
             '''
 
     try:
         # execute the query with parameters
         cursor.execute(query)  # pass timeframe and sizes
     except Exception as e:
+        # if no valid readings for the user
         print(f"Error executing query: {e}")
         return {}
 
@@ -212,8 +213,6 @@ def getHistoricalTrendsData(data):
     else:
         overallTrend = 'Stable'
 
-    #print(gradient, overallTrend)
-
     # work out the maximum conc and what time
 
     # get the right peak value and time it occurs at
@@ -257,7 +256,7 @@ def getHistoricalTrendsData(data):
     # return all relevent data to display
     return data
 
-def getPredictedTrendsData(data):
+def getPredictedTrendsData(data, apiKey):
 
     # predicting the next 20 values for all data sizes chosen
 
@@ -323,9 +322,9 @@ def getPredictedTrendsData(data):
 
     # store the prediction in a db to help calculate its accurary
     #   passes through the relevant size of particle
-    storePrediction(predictedPM1_0, 'PM1.0')
-    storePrediction(predictedPM2_5, 'PM2.5')
-    storePrediction(predictedPM10_0, 'PM10.0')
+    storePrediction(predictedPM1_0, 'PM1.0', apiKey)
+    storePrediction(predictedPM2_5, 'PM2.5', apiKey)
+    storePrediction(predictedPM10_0, 'PM10.0', apiKey)
 
     # SUMMARY DATA
 
@@ -341,7 +340,13 @@ def getPredictedTrendsData(data):
     # get the relevant data for the past 1 min
     db = dbUtility.getDBConnection()
     cursor = db.cursor()
-    cursor.execute('SELECT predictedValue, actualValue FROM predictionTbl WHERE timestamp >= NOW() - INTERVAL 1 MINUTE')
+    query = f'''
+        SELECT predictedValue, actualValue 
+        FROM predictionTbl 
+        WHERE timestamp >= NOW() - INTERVAL 1 MINUTE
+        AND apiKey = '{apiKey}'
+    '''
+    cursor.execute(query)
     # stores the data
     confidenceData = cursor.fetchall()
     # closes all the connetions
@@ -424,7 +429,7 @@ def getPredictedTrendsData(data):
     predictedData['Prediction Deviation'] = predictionDeviation
 
     # return all the data (actual time and concs + predicted times and concs)
-    # fomrat is all good to directly plot on a graph and give the illusion of continuity
+    # format is all good to directly plot on a graph and give the illusion of continuity
     return predictedData
 
 def predictNextValues(data):
@@ -481,7 +486,7 @@ def predictNextValues(data):
     # returns the values as a list which can later be stored in a dictionary
     return predictedValues
 
-def storePrediction(data, size):
+def storePrediction(data, size, apiKey):
 
     # if there's no data, then there's nothing to store
     if not data:
@@ -496,7 +501,8 @@ def storePrediction(data, size):
     db = dbUtility.getDBConnection()
     cursor = db.cursor()
     # store the prediction and the time it's thought to be at
-    cursor.execute('INSERT INTO predictionTbl (timestamp, predictedValue, particleCategory) VALUES (%s, %s, %s)', (nextSecond, nextPrediction, size))
+    query = 'INSERT INTO predictionTbl (apiKey, timestamp, predictedValue, particleCategory) VALUES (%s, %s, %s, %s)'
+    cursor.execute(query, (apiKey, nextSecond, nextPrediction, size))
     db.commit()  # Make sure to commit the transaction
 
     # closes all the connetions
