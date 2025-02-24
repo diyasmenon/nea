@@ -13,28 +13,33 @@ def fetchData():
         if sensorData.status_code == 200: # if data has been collected
             data = sensorData.json()  # get the data from the response
 
-            # store this data in the db
-            db = dbUtility.getDBConnection()
-            cursor = db.cursor()
+            try:
 
-            # adds each concentration for each sized particle
-            # inserts data into db for each
-            query = 'INSERT INTO particleDataTbl (apiKey, timestamp, concentration, particleCategory) VALUES (%s, %s, %s, %s)'
-            cursor.execute(query, (data['apiKey'], data['time'], data['PM1.0'], 'PM1.0'))
-            cursor.execute(query, (data['apiKey'], data['time'], data['PM2.5'], 'PM2.5'))
-            cursor.execute(query, (data['apiKey'], data['time'], data['PM10.0'], 'PM10.0'))
+                # store this data in the db
+                db = dbUtility.getDBConnection()
+                cursor = db.cursor()
 
-            # inserts the actual value into the prediction table, to be able to compare them
-            query = 'UPDATE predictionTbl SET actualValue = %s WHERE timestamp = %s AND particleCategory = %s AND apiKey = %s'
-            cursor.execute(query, (data['PM1.0'], data['time'], 'PM1.0', data['apiKey'] ))
-            cursor.execute(query, (data['PM2.5'], data['time'], 'PM2.5', data['apiKey']))
-            cursor.execute(query, (data['PM10.0'], data['time'], 'PM10.0', data['apiKey']))
+                # adds each concentration for each sized particle
+                # inserts data into db for each
+                query = 'INSERT INTO particleDataTbl (apiKey, timestamp, concentration, particleCategory) VALUES (%s, %s, %s, %s)'
+                cursor.execute(query, (data['apiKey'], data['time'], data['PM1.0'], 'PM1.0'))
+                cursor.execute(query, (data['apiKey'], data['time'], data['PM2.5'], 'PM2.5'))
+                cursor.execute(query, (data['apiKey'], data['time'], data['PM10.0'], 'PM10.0'))
 
-            # commits the values in db
-            db.commit()
-            # closes all the connetions
-            cursor.close()
-            db.close()
+                # inserts the actual value into the prediction table, to be able to compare them
+                query = 'UPDATE predictionTbl SET actualValue = %s WHERE timestamp = %s AND particleCategory = %s AND apiKey = %s'
+                cursor.execute(query, (data['PM1.0'], data['time'], 'PM1.0', data['apiKey'] ))
+                cursor.execute(query, (data['PM2.5'], data['time'], 'PM2.5', data['apiKey']))
+                cursor.execute(query, (data['PM10.0'], data['time'], 'PM10.0', data['apiKey']))
+
+                # commits the values in db
+                db.commit()
+                # closes all the connetions
+                cursor.close()
+                db.close()
+
+            except:
+                print('no data was received')
 
         else:
             print("Failed to fetch data.")
@@ -60,7 +65,7 @@ def deleteOldData():
 # schedulers to run tasks periodically
 scheduler = BackgroundScheduler()
 # runs fetchData() every 1 second
-scheduler.add_job(fetchData, 'interval', seconds=1)
+#scheduler.add_job(fetchData, 'interval', seconds=1)
 # runs deleteOldData() every 2 minutes
 scheduler.add_job(deleteOldData, 'interval', minutes=2)
 scheduler.start()
